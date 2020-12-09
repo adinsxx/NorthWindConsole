@@ -25,12 +25,17 @@ namespace NorthwindConsole
                     Console.WriteLine("1) Display Categories");
                     Console.WriteLine("2) Add Category");
                     Console.WriteLine("3) Display Category and related products");
-                    Console.WriteLine("4) Display all Categories and their related products");
+                    Console.WriteLine("4) Display Products based on Category choice");
                     Console.WriteLine("5) Add Product");
+                    Console.WriteLine("6) Edit Product");
+                    Console.WriteLine("7) Display all Products");
+                    Console.WriteLine("8) Display specific product");
                     Console.WriteLine("\"q\" to quit");
                     choice = Console.ReadLine();
                     Console.Clear();
                     logger.Info($"Option {choice} selected");
+
+                    //Display Categories
                     if (choice == "1")
                     {
                         var db = new NorthwindConsole_32_CDMContext();
@@ -45,42 +50,18 @@ namespace NorthwindConsole
                         }
                         Console.ForegroundColor = ConsoleColor.White;
                     }
+
+                    //Add Categories
                     else if (choice == "2")
                     {
-                        Category category = new Category();
-                        Console.WriteLine("Enter Category Name:");
-                        category.CategoryName = Console.ReadLine();
-                        Console.WriteLine("Enter the Category Description:");
-                        category.Description = Console.ReadLine();
-
-                        ValidationContext context = new ValidationContext(category, null, null);
-                        List<ValidationResult> results = new List<ValidationResult>();
-
-                        var isValid = Validator.TryValidateObject(category, context, results, true);
-                        if (isValid)
-                        {
-                            var db = new NorthwindConsole_32_CDMContext();
-                            // check for unique name
-                            if (db.Categories.Any(c => c.CategoryName == category.CategoryName))
-                            {
-                                // generate validation error
-                                isValid = false;
-                                results.Add(new ValidationResult("Name exists", new string[] { "CategoryName" }));
-                            }
-                            else
-                            {
-                                logger.Info("Validation passed");
-                                // TODO: save category to db
-                            }
-                        }
-                        if (!isValid)
-                        {
-                            foreach (var result in results)
-                            {
-                                logger.Error($"{result.MemberNames.First()} : {result.ErrorMessage}");
-                            }
+                        var db = new NorthwindContext();
+                        Categories categories = InputCategories(db);
+                        if (categories != null){
+                            db.AddCategory(categories);
+                            logger.Info("Category added - {name}", categories.CategoryName);
                         }
                     }
+                    //Displays all categories and related products
                     else if (choice == "3")
                     {
                         var db = new NorthwindConsole_32_CDMContext();
@@ -103,6 +84,7 @@ namespace NorthwindConsole
                             Console.WriteLine(p.ProductName);
                         }
                     }
+                    //Displays categories to choose from. Displays products of chosen category.
                     else if (choice == "4")
                     {
                         var db = new NorthwindConsole_32_CDMContext();
@@ -116,40 +98,30 @@ namespace NorthwindConsole
                             }
                         }
                     }
-
+                    // 1.a   Add new records to the Products table
                     else if (choice == "5")
                     {
-                        Product product = new Product();
-                        Console.WriteLine("Enter Product Name");
-                        product.ProductName = Console.ReadLine();
-
-                        ValidationContext context = new ValidationContext(product, null, null);
-                        List<ValidationResult> results = new List<ValidationResult>();
-
-                        var isValid = Validator.TryValidateObject(product, context, results, true);
-                        if (isValid)
-                        {
-                            var db = new NorthwindConsole_32_CDMContext();
-                            // check for unique name
-                            if (db.Products.Any(c => c.ProductName == product.ProductName))
-                            {
-                                // generate validation error
-                                isValid = false;
-                                results.Add(new ValidationResult("Name exists", new string[] { "ProductName" }));
-                            }
-                            else
-                            {
-                                logger.Info("Validation passed");
-                                // TODO: save category to db
-                            }
+                        var db = new NorthwindContext();
+                        Products products = InputProduct(db);
+                        if (products != null){
+                            db.AddProduct(products);
+                            logger.Info("Product added - {name}", products.ProductName);
                         }
-                        if (!isValid)
-                        {
-                            foreach (var result in results)
-                            {
-                                logger.Error($"{result.MemberNames.First()} : {result.ErrorMessage}");
-                            }
-                        }
+                    }
+                    //1.b Edit a specified record from the Products table
+                    else if (choice == "6")
+                    {
+                        
+                    }
+                    //1.c  Display all records in the Products table (ProductName only) - user decides if they want to see all products, discontinued products, or active (not discontinued) products. Discontinued products should be distinguished from active products.
+
+                    else if (choice == "7")
+                    {
+
+                    }
+                    //1.d Display a specific Product (all product fields should be displayed)
+                    else if (choice == "8")
+                    {
 
                     }
                     Console.WriteLine();
@@ -163,5 +135,126 @@ namespace NorthwindConsole
 
             logger.Info("Program ended");
         }
+//---------------------------------------------------
+        //Category and product retrieval for editing
+        public static Categories GetCategories(NorthwindContext db)
+        {
+            // display all blogs
+            var categories = db.Categories.OrderBy(c => c.CategoryID);
+            foreach (Categories c in categories)
+            {
+                Console.WriteLine($"{c.CategoryID}: {c.CategoryName}");
+            }
+            if (int.TryParse(Console.ReadLine(), out int CategoryID))
+            {
+                Categories category = db.Categories.FirstOrDefault(c => c.CategoryID == CategoryID);
+                if (category != null)
+                {
+                    return category;
+                }
+            }
+            logger.Error("Invalid Blog Id");
+            return null;
+        }
+
+        public static Products GetProducts(NorthwindContext db)
+        {
+            // display all blogs
+            var products = db.Products.OrderBy(p => p.ProductID);
+            foreach (Products p in products)
+            {
+                Console.WriteLine($"{p.ProductID}: {p.ProductName}");
+            }
+            if (int.TryParse(Console.ReadLine(), out int ProductId))
+            {
+                Products product = db.Products.FirstOrDefault(p => p.ProductID == ProductId);
+                if (product != null)
+                {
+                    return product;
+                }
+            }
+            logger.Error("Invalid Blog Id");
+            return null;
+        }
+
+//------------------------------------------
+//Category and Product input validation
+        public static Categories InputCategories(NorthwindContext db)
+        {
+
+            Categories categories = new Categories();
+            Console.WriteLine("Enter Product Name");
+            categories.CategoryName = Console.ReadLine();
+
+            ValidationContext context = new ValidationContext(categories, null, null);
+            List<ValidationResult> results = new List<ValidationResult>();
+
+            var isValid = Validator.TryValidateObject(categories, context, results, true);
+            if (isValid)
+            {
+                // check for unique name
+                if (db.Categories.Any(c => c.CategoryName == categories.CategoryName))
+                {
+                    // generate validation error
+                    isValid = false;
+                    results.Add(new ValidationResult("Name exists", new string[] { "CategoryName" }));
+                }
+                else
+                {
+                    logger.Info("Validation passed");
+
+                }
+            }
+            if (!isValid)
+            {
+                foreach (var result in results)
+                {
+                    logger.Error($"{result.MemberNames.First()} : {result.ErrorMessage}");
+                }
+                return null;
+            }
+            return categories;
+        }
+
+        public static Products InputProduct(NorthwindContext db)
+        {
+
+            Products products = new Products();
+            Console.WriteLine("Enter Product Name");
+            products.ProductName = Console.ReadLine();
+
+            ValidationContext context = new ValidationContext(products, null, null);
+            List<ValidationResult> results = new List<ValidationResult>();
+
+            var isValid = Validator.TryValidateObject(products, context, results, true);
+            if (isValid)
+            {
+                // check for unique name
+                if (db.Products.Any(p => p.ProductName == products.ProductName))
+                {
+                    // generate validation error
+                    isValid = false;
+                    results.Add(new ValidationResult("Name exists", new string[] { "ProductName" }));
+                }
+                else
+                {
+                    logger.Info("Validation passed");
+
+                }
+            }
+            if (!isValid)
+            {
+                foreach (var result in results)
+                {
+                    logger.Error($"{result.MemberNames.First()} : {result.ErrorMessage}");
+                }
+                return null;
+            }
+            return products;
+        }
+
+
+
     }
 }
+

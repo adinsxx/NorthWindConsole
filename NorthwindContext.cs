@@ -54,7 +54,7 @@ namespace NorthwindConsole
             IConfiguration config = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json", true, true)
                 .Build();
-            optionsBuilder.UseSqlServer(@config["BloggingContext:ConnectionString"]);
+            optionsBuilder.UseSqlServer(@config["NorthwindContext:ConnectionString"]);
         }
     }
 }
