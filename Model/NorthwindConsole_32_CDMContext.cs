@@ -18,7 +18,7 @@ namespace NorthwindConsole.Model
         {
         }
 
-        public virtual DbSet<Category> Categories { get; set; }
+        public virtual DbSet<Categories> Categories { get; set; }
         public virtual DbSet<Customer> Customers { get; set; }
         public virtual DbSet<Employee> Employees { get; set; }
         public virtual DbSet<EmployeeTerritory> EmployeeTerritories { get; set; }
@@ -29,6 +29,47 @@ namespace NorthwindConsole.Model
         public virtual DbSet<Shipper> Shippers { get; set; }
         public virtual DbSet<Supplier> Suppliers { get; set; }
         public virtual DbSet<Territory> Territories { get; set; }
+
+
+        public void AddCategory(Categories categories)
+        {
+            this.Categories.Add(categories);
+            this.SaveChanges();
+        }
+
+        public void EditCategory(Categories UpdatedCategories)
+        {
+            Categories categories = this.Categories.Find(UpdatedCategories.CategoryId);
+            categories.CategoryName = UpdatedCategories.CategoryName;
+            this.SaveChanges();
+        }
+
+        public void DeleteCategory(Categories categories)
+        {
+            this.Categories.Remove(categories);
+            this.SaveChanges();
+        }
+
+    //Product CRUD
+
+        public void AddProduct(Product products)
+        {
+            this.Products.Add(products);
+            this.SaveChanges();
+        }
+
+        public void EditProduct(Product UpdatedProducts)
+        {
+            Product products = this.Products.Find(UpdatedProducts.ProductId);
+            products.ProductName = UpdatedProducts.ProductName;
+            this.SaveChanges();
+        }
+
+        public void DeleteProduct(Product products)
+        {
+            this.Products.Remove(products);
+            this.SaveChanges();
+        }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -43,8 +84,9 @@ namespace NorthwindConsole.Model
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Category>(entity =>
+            modelBuilder.Entity<Categories>(entity =>
             {
+                entity.HasKey(e => e.CategoryId);
                 entity.Property(e => e.CategoryName)
                     .IsRequired()
                     .HasMaxLength(15);

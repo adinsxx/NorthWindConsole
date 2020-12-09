@@ -54,7 +54,7 @@ namespace NorthwindConsole
                     //Add Categories
                     else if (choice == "2")
                     {
-                        var db = new NorthwindContext();
+                        var db = new NorthwindConsole_32_CDMContext();
                         Categories categories = InputCategories(db);
                         if (categories != null){
                             db.AddCategory(categories);
@@ -77,7 +77,7 @@ namespace NorthwindConsole
                         int id = int.Parse(Console.ReadLine());
                         Console.Clear();
                         logger.Info($"CategoryId {id} selected");
-                        Category category = db.Categories.Include("Products").FirstOrDefault(c => c.CategoryId == id);
+                        Categories category = db.Categories.Include("Products").FirstOrDefault(c => c. CategoryId== id);
                         Console.WriteLine($"{category.CategoryName} - {category.Description}");
                         foreach (Product p in category.Products)
                         {
@@ -101,8 +101,8 @@ namespace NorthwindConsole
                     // 1.a   Add new records to the Products table
                     else if (choice == "5")
                     {
-                        var db = new NorthwindContext();
-                        Products products = InputProduct(db);
+                        var db = new NorthwindConsole_32_CDMContext();
+                        Product products = InputProduct(db);
                         if (products != null){
                             db.AddProduct(products);
                             logger.Info("Product added - {name}", products.ProductName);
@@ -137,17 +137,17 @@ namespace NorthwindConsole
         }
 //---------------------------------------------------
         //Category and product retrieval for editing
-        public static Categories GetCategories(NorthwindContext db)
+        public static Categories GetCategories(NorthwindConsole_32_CDMContext db)
         {
             // display all blogs
-            var categories = db.Categories.OrderBy(c => c.CategoryID);
+            var categories = db.Categories.OrderBy(c => c.CategoryId);
             foreach (Categories c in categories)
             {
-                Console.WriteLine($"{c.CategoryID}: {c.CategoryName}");
+                Console.WriteLine($"{c.CategoryId}: {c.CategoryName}");
             }
             if (int.TryParse(Console.ReadLine(), out int CategoryID))
             {
-                Categories category = db.Categories.FirstOrDefault(c => c.CategoryID == CategoryID);
+                Categories category = db.Categories.FirstOrDefault(c => c.CategoryId == CategoryID);
                 if (category != null)
                 {
                     return category;
@@ -157,17 +157,17 @@ namespace NorthwindConsole
             return null;
         }
 
-        public static Products GetProducts(NorthwindContext db)
+        public static Product GetProducts(NorthwindConsole_32_CDMContext db)
         {
             // display all blogs
-            var products = db.Products.OrderBy(p => p.ProductID);
-            foreach (Products p in products)
+            var products = db.Products.OrderBy(p => p.ProductId);
+            foreach (Product p in products)
             {
-                Console.WriteLine($"{p.ProductID}: {p.ProductName}");
+                Console.WriteLine($"{p.ProductId}: {p.ProductName}");
             }
-            if (int.TryParse(Console.ReadLine(), out int ProductId))
+            if (int.TryParse(Console.ReadLine(), out int ProductID))
             {
-                Products product = db.Products.FirstOrDefault(p => p.ProductID == ProductId);
+                Product product = db.Products.FirstOrDefault(p => p.ProductId == ProductID);
                 if (product != null)
                 {
                     return product;
@@ -179,12 +179,14 @@ namespace NorthwindConsole
 
 //------------------------------------------
 //Category and Product input validation
-        public static Categories InputCategories(NorthwindContext db)
+        public static Categories InputCategories(NorthwindConsole_32_CDMContext db)
         {
 
             Categories categories = new Categories();
-            Console.WriteLine("Enter Product Name");
+            Console.WriteLine("Enter Category Name");
             categories.CategoryName = Console.ReadLine();
+            Console.WriteLine("Enter Category Descrption");
+            categories.Description = Console.ReadLine();
 
             ValidationContext context = new ValidationContext(categories, null, null);
             List<ValidationResult> results = new List<ValidationResult>();
@@ -216,13 +218,23 @@ namespace NorthwindConsole
             return categories;
         }
 
-        public static Products InputProduct(NorthwindContext db)
+        public static Product InputProduct(NorthwindConsole_32_CDMContext db)
         {
 
-            Products products = new Products();
+            Product products = new Product();
+            Categories categories = new Categories();
             Console.WriteLine("Enter Product Name");
             products.ProductName = Console.ReadLine();
-
+            Console.WriteLine("Enter Related Category");
+            var query = db.Categories.OrderBy(p => p.CategoryName);
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine($"{query.Count()} records returned");
+            Console.ForegroundColor = ConsoleColor.Magenta;
+            foreach (var item in query)
+                {
+                    Console.WriteLine($"{item.CategoryName} - {item.Description}");
+                }
+            categories.CategoryName = Console.ReadLine();
             ValidationContext context = new ValidationContext(products, null, null);
             List<ValidationResult> results = new List<ValidationResult>();
 
@@ -257,4 +269,3 @@ namespace NorthwindConsole
 
     }
 }
-
