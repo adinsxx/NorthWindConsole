@@ -24,8 +24,8 @@ namespace NorthwindConsole
                 {
                     Console.WriteLine("1) Display Categories");
                     Console.WriteLine("2) Add Category");
-                    Console.WriteLine("3) Display Category and related products");
-                    Console.WriteLine("4) Display Products based on Category choice");
+                    Console.WriteLine("3) Display Products based on Category choice");
+                    Console.WriteLine("4) Display Category and related products");
                     Console.WriteLine("5) Add Product");
                     Console.WriteLine("6) Edit Product");
                     Console.WriteLine("7) Display all Products");
@@ -219,12 +219,40 @@ namespace NorthwindConsole
                     // /Display all Categories and their active products
                     else if (choice == "10")
                     {
-                        
+                        var db = new NorthwindConsole_32_CDMContext();
+                        var query = db.Categories.Include("Products").OrderBy(p => p.CategoryId);
+                        foreach (var item in query)
+                        {
+                            Console.WriteLine($"{item.CategoryName}");
+                            var products = db.Products.Where(p => p.Discontinued == false).OrderBy(p => p.ProductName);
+                            foreach (Product p in item.Products.Where(p => p.Discontinued == false))
+                            {
+                                Console.WriteLine($"\t{p.ProductName}");
+                            }
+                        }
                     }
                     //Display a specific Category and its active products
                     else if (choice == "11")
                     {
-                        
+                        var db = new NorthwindConsole_32_CDMContext();
+                        var query = db.Categories.OrderBy(p => p.CategoryId);
+
+                        Console.WriteLine("Select the category whose products you want to display:");
+                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                        foreach (var item in query)
+                        {
+                            Console.WriteLine($"{item.CategoryId}) {item.CategoryName}");
+                        }
+                        Console.ForegroundColor = ConsoleColor.White;
+                        int id = int.Parse(Console.ReadLine());
+                        Console.Clear();
+                        logger.Info($"CategoryId {id} selected");
+                        Categories category = db.Categories.Include("Products").FirstOrDefault(c => c. CategoryId== id);
+                        Console.WriteLine($"{category.CategoryName} - {category.Description}");
+                        foreach (Product p in category.Products.Where(p => p.Discontinued == false))
+                        {
+                            Console.WriteLine(p.ProductName);
+                        }
                     }
                     //Delete Category
                     else if (choice == "12")
