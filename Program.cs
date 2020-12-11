@@ -108,15 +108,18 @@ namespace NorthwindConsole
                     {
                         var db = new NorthwindConsole_32_CDMContext();
                         Product products = InputProduct(db);
+                        Console.ForegroundColor = ConsoleColor.Green;
                         if (products != null){
                             db.AddProduct(products);
                             logger.Info("Product added - {name}", products.ProductName);
                         }
+                        Console.ForegroundColor = ConsoleColor.White;
                     }
                     //1.b Edit a specified record from the Products table
                     else if (choice == "6")
                     {
                         Console.WriteLine("Choose the product to edit:");
+                        Console.ForegroundColor = ConsoleColor.Green;
                         var db = new NorthwindConsole_32_CDMContext();
                         var product = GetProducts(db);
                         if (product != null)
@@ -129,6 +132,7 @@ namespace NorthwindConsole
                                 logger.Info($"Product (id: {product.ProductId})");
                             }
                         }
+                        Console.ForegroundColor = ConsoleColor.White;
                     }
                     //1.c  Display all records in the Products table (ProductName only) - user decides if they want to see all products, discontinued products, or active (not discontinued) products. Discontinued products should be distinguished from active products.
 
@@ -149,12 +153,14 @@ namespace NorthwindConsole
                             if (product != null)
                             {
                                 Console.WriteLine($"There are {product.Count()} products in the database:");
+                                Console.ForegroundColor = ConsoleColor.Green;
                                 foreach (var allProds in product)
                                 {
                                     Console.Write(allProds.ProductId+ " ");
                                     Console.WriteLine(allProds.ProductName);
                                 }
                             }
+                            Console.ForegroundColor = ConsoleColor.White;
                         } 
                         else if (pChoice == "2")
                         {
@@ -163,6 +169,7 @@ namespace NorthwindConsole
                             //var discontinued = db.Products.OrderBy(d => d.Discontinued);
                             // if (discontinued != null)
                             // {
+                                Console.ForegroundColor = ConsoleColor.Red;
                                 Console.WriteLine($"There are {products.Count()} discontinued products in the database:");
                                 foreach (var p in products)
                                 {
@@ -171,17 +178,20 @@ namespace NorthwindConsole
 
                                 }
                             // }
+                            Console.ForegroundColor = ConsoleColor.White;
                         }
 
                         else if (pChoice == "3")
                         {
                             var db = new NorthwindConsole_32_CDMContext();
                             var products = db.Products.Where(p => p.Discontinued == false).OrderBy(p => p.ProductName);
+                            Console.ForegroundColor = ConsoleColor.Blue;
                             Console.WriteLine($"There are {products.Count()} active products in the database:");
                                 foreach (var p in products)
                                 {
                                     Console.WriteLine(p.ProductName);   
                                 }
+                                Console.ForegroundColor = ConsoleColor.White;
                         }
                     }
                     //1.d Display a specific Product (all product fields should be displayed)
@@ -189,18 +199,22 @@ namespace NorthwindConsole
                     {
                         var db = new NorthwindConsole_32_CDMContext();
                         Console.WriteLine("Type in the name of the product to display");
+
                         string userInput = Console.ReadLine();
+                        Console.ForegroundColor = ConsoleColor.Green;
                         var products = db.Products.Where(p => p.ProductName.Contains(userInput)).OrderBy(p => p.ProductName);
                         Console.WriteLine($"There are {products.Count()} products that match your entry");
                         foreach (var p in products)
                         {
                             Console.WriteLine($"{p.ProductId} - {p.ProductName} - {p.SupplierId} - {p.CategoryId} - {p.QuantityPerUnit} - {p.UnitPrice} - {p.UnitsInStock} - {p.UnitsOnOrder} - {p.ReorderLevel} - {p.Discontinued}");
                         }
+                        Console.ForegroundColor = ConsoleColor.White;
                     }
                     //"9) Edit Category"
                     else if (choice == "9")
                     {
                         Console.WriteLine("Choose the category to edit:");
+                        Console.ForegroundColor = ConsoleColor.DarkRed;
                         var db = new NorthwindConsole_32_CDMContext();
                         var categories = GetCategories(db);
                         if (categories != null)
@@ -221,6 +235,7 @@ namespace NorthwindConsole
                     {
                         var db = new NorthwindConsole_32_CDMContext();
                         var query = db.Categories.Include("Products").OrderBy(p => p.CategoryId);
+                        Console.ForegroundColor = ConsoleColor.Blue;
                         foreach (var item in query)
                         {
                             Console.WriteLine($"{item.CategoryName}");
@@ -230,6 +245,7 @@ namespace NorthwindConsole
                                 Console.WriteLine($"\t{p.ProductName}");
                             }
                         }
+                        Console.ForegroundColor = ConsoleColor.White;
                     }
                     //Display a specific Category and its active products
                     else if (choice == "11")
@@ -249,17 +265,22 @@ namespace NorthwindConsole
                         logger.Info($"CategoryId {id} selected");
                         Categories category = db.Categories.Include("Products").FirstOrDefault(c => c. CategoryId== id);
                         Console.WriteLine($"{category.CategoryName} - {category.Description}");
+                        Console.ForegroundColor = ConsoleColor.White;
                         foreach (Product p in category.Products.Where(p => p.Discontinued == false))
-                        {
+                        {   
+                            Console.ForegroundColor = ConsoleColor.Green;
                             Console.WriteLine(p.ProductName);
                         }
+                        Console.ForegroundColor = ConsoleColor.White;
                     }
                     //Delete Category
                     else if (choice == "12")
                     {
                         Console.WriteLine("Choose Category to delete");
+                        Console.ForegroundColor = ConsoleColor.DarkRed;
                         var db = new NorthwindConsole_32_CDMContext();
                         var catDelete = GetCategories(db);
+                        Console.ForegroundColor = ConsoleColor.White;
                         Categories categories = new Categories();
                             if (catDelete != null)
                             {
@@ -271,8 +292,10 @@ namespace NorthwindConsole
                     else if (choice == "13")
                     {
                       Console.WriteLine("Choose Product to delete");
+                      Console.ForegroundColor = ConsoleColor.Green;
                         var db = new NorthwindConsole_32_CDMContext();
                         var prodDelete = GetProducts(db);
+                        Console.ForegroundColor = ConsoleColor.White;
                         if (prodDelete != null)
                         {
                             db.DeleteProduct(prodDelete);
